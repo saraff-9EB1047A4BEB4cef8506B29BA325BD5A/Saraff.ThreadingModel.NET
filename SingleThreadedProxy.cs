@@ -44,6 +44,8 @@ namespace Saraff.ThreadingModel {
     /// </summary>
     public sealed class SingleThreadedProxy:RealProxy {
         private object _instance;
+        private _CreateInstanceCallback _activator;
+        private AutoResetEvent _activatorEvent=new AutoResetEvent(false);
         private Dictionary<string,EventHandlerHelper> _events=new Dictionary<string,EventHandlerHelper>();
         private SingleThreadedHelper _helper;
 
@@ -55,8 +57,11 @@ namespace Saraff.ThreadingModel {
         /// </summary>
         /// <param name="instance">Удаленный объект для которого создается прокси. The the remote object for which to create a proxy.</param>
         [PermissionSet(SecurityAction.LinkDemand)]
-        public SingleThreadedProxy(object instance):base(instance.GetType()) {
-            this._instance=instance;
+        public SingleThreadedProxy(object instance) : base(instance.GetType()) {
+            this._activator=() => {
+                this._instance=instance;
+                this._activatorEvent.Set();
+            };
         }
 
         /// <summary>
@@ -67,8 +72,11 @@ namespace Saraff.ThreadingModel {
         /// </summary>
         /// <param name="type">Тип удаленного объекта для которого создается прокси. The System.Type of the remote object for which to create a proxy.</param>
         [PermissionSet(SecurityAction.LinkDemand)]
-        public SingleThreadedProxy(Type type):base(type) {
-            this._instance=Activator.CreateInstance(type);
+        public SingleThreadedProxy(Type type) : base(type) {
+            this._activator=() => {
+                this._instance=Activator.CreateInstance(type);
+                this._activatorEvent.Set();
+            };
         }
 
         /// <summary>
@@ -83,8 +91,11 @@ namespace Saraff.ThreadingModel {
         /// An array of arguments that match in number, order, and type the parameters of the constructor to invoke.
         /// </param>
         [PermissionSet(SecurityAction.LinkDemand)]
-        public SingleThreadedProxy(Type type, params object[] args):base(type) {
-            this._instance=Activator.CreateInstance(type,args);
+        public SingleThreadedProxy(Type type,params object[] args) : base(type) {
+            this._activator=() => {
+                this._instance=Activator.CreateInstance(type,args);
+                this._activatorEvent.Set();
+            };
         }
 
         /// <summary>
@@ -158,7 +169,9 @@ namespace Saraff.ThreadingModel {
         private SingleThreadedHelper Helper {
             get {
                 if(this._helper==null) {
-                    this._helper=SingleThreadedHelper.Create();
+                    this._helper=SingleThreadedHelper.Create(this._activator);
+                    this._activatorEvent.WaitOne();
+                    this._activatorEvent.Close();
                 }
                 return this._helper;
             }

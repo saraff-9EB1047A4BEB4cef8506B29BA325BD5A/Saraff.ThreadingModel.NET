@@ -44,16 +44,17 @@ namespace Saraff.ThreadingModel.Core {
         private Stack<InvokeHelper> _eventsStack=new Stack<InvokeHelper>();
         private Stack<InvokeHelper> _methodsStack=new Stack<InvokeHelper>();
 
-        private SingleThreadedHelper() {
-            this._ThreadLoop();
+        private SingleThreadedHelper(_CreateInstanceCallback initCallback) {
+            this._ThreadLoop(initCallback);
         }
 
-        internal static SingleThreadedHelper Create() {
-            return new SingleThreadedHelper();
+        internal static SingleThreadedHelper Create(_CreateInstanceCallback initCallback) {
+            return new SingleThreadedHelper(initCallback);
         }
 
-        private void _ThreadLoop() {
+        private void _ThreadLoop(_CreateInstanceCallback initCallback) {
             var _thread=new Thread(() => {
+                initCallback();
                 while(true) {
                     this._coreSyncEvent.WaitOne();
 
@@ -174,4 +175,6 @@ namespace Saraff.ThreadingModel.Core {
             }
         }
     }
+
+    internal delegate void _CreateInstanceCallback();
 }
