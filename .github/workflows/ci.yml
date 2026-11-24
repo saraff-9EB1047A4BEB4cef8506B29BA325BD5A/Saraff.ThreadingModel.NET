@@ -20,6 +20,20 @@ jobs:
       - name: Build
         run: dotnet build Saraff.ThreadingModel.sln -c Release --no-restore
 
+      - name: Verify strong name
+        shell: pwsh
+        run: |
+          $assemblyPath = Resolve-Path 'src/Saraff.ThreadingModel/bin/Release/net8.0-windows/Saraff.ThreadingModel.dll'
+          $token = [System.Reflection.AssemblyName]::GetAssemblyName($assemblyPath).GetPublicKeyToken()
+          if (-not $token) {
+            throw 'The net8.0-windows assembly is not public-signed.'
+          }
+          $hex = ($token | ForEach-Object { $_.ToString('x2') }) -join ''
+          if ($hex -ne '54f373c993f693dc') {
+            throw "Unexpected public key token: $hex"
+          }
+          Write-Host "Saraff.ThreadingModel (net8.0-windows) public key token: $hex"
+
       - name: Test
         run: dotnet test tests/Saraff.ThreadingModel.Tests/Saraff.ThreadingModel.Tests.csproj -c Release --no-build --logger "console;verbosity=normal"
 

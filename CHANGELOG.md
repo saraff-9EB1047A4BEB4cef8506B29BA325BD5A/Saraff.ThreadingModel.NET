@@ -14,8 +14,9 @@
 - Обработчики очереди регистрируются под именем своего типа: несколько реализаций `IQueueMessageHandler<T>` (включая `Singleton`) не конфликтуют в кэше контейнера; диспетчер разрешает их по имени.
 - `net8.0-windows` на `DispatchProxy`; `net462` остаётся на `RealProxy`.
 - Тесты (xUnit) на обоих TFM, включая стресс-сценарии, DI, события, `ref/out`.
-- Пример: `samples/Saraff.ThreadingModel.Sample`.
+- Примеры: `samples/Saraff.ThreadingModel.Sample` (DI, очередь) и `samples/Saraff.ThreadingModel.Sample.Plain` (без контейнера).
 - CI (GitHub Actions), `.editorconfig`, `.gitignore`, `Directory.Build.props`.
+- Публичная подпись: `eng/strongname.public.snk` и `PublicSign` для `net8.0-windows`; CI проверяет токен `54f373c993f693dc`.
 
 ### Исправлено
 
@@ -36,10 +37,11 @@
 - События доставляются через `SynchronizationContext` подписчика (если он был захвачен при подписке); иначе — в потоке диспетчера.
 - Публичный тип `Core.EventHandlerHelper` удалён; `Core.SingleThreadedHelper` удалён.
 - Целевые платформы: `net462;net8.0-windows` (вместо .NET Framework 2.0).
-- Сборка больше не подписана: `sign.snk` удалён из репозитория.
+- Строгое имя: `net8.0-windows` собирается с `PublicSign` по публичному ключу `eng/strongname.public.snk` (токен `54f373c993f693dc`); `net462` остаётся без строгого имени, потому что .NET Framework отклоняет public-signed/delay-signed сборки (`HRESULT 0x80131045`). Прежний `sign.snk` удалён из репозитория.
 
 ### Известные ограничения
 
 - `net8.0-windows`: `SingleThreadedProxy` поддерживает только интерфейсы.
+- `net462` не имеет строгого имени: для полноценной подписи требуется закрытый ключ вне репозитория.
 - События с `ref`/`out`-параметрами делегата не поддерживаются (`NotSupportedException`).
 - Отмена уже выполняющегося синхронного вызова не поддерживается.

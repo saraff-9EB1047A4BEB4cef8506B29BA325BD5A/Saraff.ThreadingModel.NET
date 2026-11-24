@@ -31,6 +31,19 @@ PM> Install-Package Saraff.ThreadingModel
 
 Зависимость: `Saraff.IoC >= 2.0.0`.
 
+## Строгое имя
+
+`net8.0-windows` собирается с **PublicSign** по публичному ключу `eng/strongname.public.snk`
+(токен `54f373c993f693dc`). Закрытый ключ в репозитории не хранится и для сборки не нужен.
+
+`net462` остаётся без строгого имени: .NET Framework проверяет подпись строгого имени и отклоняет
+public-signed/delay-signed сборки (`HRESULT 0x80131045`). Для полноценной подписи `net462` нужен
+закрытый ключ вне репозитория (например, CI-секрет) и `SignAssembly`/`AssemblyOriginatorKeyFile`
+без `PublicSign`.
+
+Влияние на `bindingRedirect` и `InternalsVisibleTo` описано в
+[документации](https://saraff-9eb1047a4beb4cef8506b29ba325bd5a.github.io/saraffthread/StrongName.html).
+
 ## Быстрый старт: прокси
 
 ```csharp
@@ -145,7 +158,7 @@ using (var dispatcher = new SingleThreadedDispatcher(options: null, services: nu
 - События с параметрами `ref`/`out` не поддерживаются (бросается `NotSupportedException`).
 - Обработчики событий вызываются синхронно; исключение обработчика пробрасывается вызывающему коду.
 - Отмена in-flight вызова `Send` невозможна: `CancellationToken` действует до начала исполнения и для обработчиков очереди.
-- `Assembly` больше не подписан: ключ `sign.snk` удалён из репозитория (см. CHANGELOG).
+- Строгое имя: `net8.0-windows` — PublicSign (токен `54f373c993f693dc`), `net462` — без строгого имени из-за проверки подписи в .NET Framework (см. раздел «Строгое имя»).
 
 ## Примеры
 
