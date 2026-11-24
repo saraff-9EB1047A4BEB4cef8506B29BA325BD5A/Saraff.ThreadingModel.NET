@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net462;net8.0-windows</TargetFrameworks>
+    <RootNamespace>Saraff.ThreadingModel</RootNamespace>
+    <AssemblyName>Saraff.ThreadingModel</AssemblyName>
+    <Description>Represents a single threading synchronization model: an STA dispatcher thread with a message pump, an interface proxy that marshals every call to that thread, and a DI-friendly message queue.</Description>
+    <PackageId>Saraff.ThreadingModel</PackageId>
+    <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/saraff-9EB1047A4BEB4cef8506B29BA325BD5A/Saraff.ThreadingModel.NET</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/saraff-9EB1047A4BEB4cef8506B29BA325BD5A/Saraff.ThreadingModel.NET</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>threading STA proxy DI IoC</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Saraff.IoC" Version="2.0.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Condition="Exists('..\..\README.md')" />
+    <None Include="..\..\COPYING.txt" Pack="true" PackagePath="\" />
+    <None Include="..\..\COPYING.LESSER.txt" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

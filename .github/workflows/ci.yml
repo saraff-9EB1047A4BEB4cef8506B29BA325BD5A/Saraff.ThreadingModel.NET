@@ -1,0 +1,32 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore Saraff.ThreadingModel.sln
+
+      - name: Build
+        run: dotnet build Saraff.ThreadingModel.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test tests/Saraff.ThreadingModel.Tests/Saraff.ThreadingModel.Tests.csproj -c Release --no-build --logger "console;verbosity=normal"
+
+      - name: Pack
+        run: dotnet pack src/Saraff.ThreadingModel/Saraff.ThreadingModel.csproj -c Release --no-build -o artifacts
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: artifacts/*
